@@ -107,9 +107,7 @@ trait Service extends Protocols {
 //curl -v "http://localhost:8085/features/default/cbd4172a-0d66-4702-90c2-208698b1a483/NGQYvWIEWFUrHA1e61c1pHpDlX6Tvx*mAnxxZRr0iNOAGrjMUOr"
 //curl -v "http://localhost:8085/features/default/cbd4172a-0d66-4702-90c2-208698b1a483/NGQYvWIEWFUrHA1e61c1pHpDlX6Tvx\*mAnxxZRr0iNOAGrjMUOr"
   def featchFeatureFlag(key: String) : Future[Boolean] = {
-    val config = new FeatureHubConfig()
-    config.apiKey = s"default/cbd4172a-0d66-4702-90c2-208698b1a483/NGQYvWIEWFUrHA1e61c1pHpDlX6Tvx*mAnxxZRr0iNOAGrjMUOr"
-    config.baseUrl = "http://localhost:8085"
+    val config = new EdgeFeatureHubConfig("http://localhost:8085",s"default/cbd4172a-0d66-4702-90c2-208698b1a483/NGQYvWIEWFUrHA1e61c1pHpDlX6Tvx*mAnxxZRr0iNOAGrjMUOr")
     config.init()
     println(config.getRealtimeUrl())
     println(config.getReadyness())

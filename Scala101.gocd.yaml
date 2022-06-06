@@ -1,0 +1,32 @@
+format_version: 10
+pipelines:
+  Scala101:
+    group: My-Pipelines
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: -1
+    materials:
+      git-8b31324:
+        git: https://github.com/piyawattop/test-scala
+        username: piyawattop@hotmail.com
+        shallow_clone: false
+        auto_update: true
+        branch: main
+        encrypted_password: AES:J35YTqnKLfjG3oOjAod7tw==:VSMJlR4uUfz+RsZxRC0REjGY4MyuhGu0thXMZj4dbtY4a7k+RR/iBZ1tulGAM3kV
+    stages:
+    - Build-Test-Push:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+          allow_only_on_success: false
+        jobs:
+          exec:
+            timeout: 0
+            tasks:
+            - exec:
+                arguments:
+                - publishLocal
+                command: sbt
+                run_if: passed
