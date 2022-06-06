@@ -24,11 +24,20 @@ pipelines:
         jobs:
           build_image:
             timeout: 0
+            artifacts:
+            - external:
+              id: scala-test
+              store_id: dockerhub
+              configuration:
+                options:
+                  Image: piyawattop/scala-test
+                  Tag: ${GO_PIPELINE_LABEL}
             tasks:
             - exec:
                 arguments:
-                - publishLocal
-                command: sbt
+                - -c
+                - docker build -t piyawattop/scala-test:$GO_PIPELINE_LABEL . -f Dockerfile.application
+                command: /bin/bash
                 run_if: passed
   # test_application:
   #   group: My-Pipelines
