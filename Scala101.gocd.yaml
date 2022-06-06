@@ -35,6 +35,6 @@ pipelines:
             - exec:
                 arguments:
                 - -c
-                - docker build -t piyawattop/scala-test:$GO_PIPELINE_LABEL . -f Dockerfile.application
+                - docker build -t piyawattop/scala-test:$GO_PIPELINE_LABEL . -f Dockerfile
                 command: /bin/bash
                 run_if: passed
