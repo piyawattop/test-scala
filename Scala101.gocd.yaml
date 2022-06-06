@@ -1,6 +1,6 @@
 format_version: 10
 pipelines:
-  Scala101:
+  build_and_publish_image:
     group: My-Pipelines
     label_template: ${COUNT}
     lock_behavior: none
@@ -14,7 +14,7 @@ pipelines:
         branch: main
         encrypted_password: AES:J35YTqnKLfjG3oOjAod7tw==:VSMJlR4uUfz+RsZxRC0REjGY4MyuhGu0thXMZj4dbtY4a7k+RR/iBZ1tulGAM3kV
     stages:
-    - Build-Test-Push:
+    - build_and_publish_image:
         fetch_materials: true
         keep_artifacts: false
         clean_workspace: false
@@ -22,11 +22,93 @@ pipelines:
           type: success
           allow_only_on_success: false
         jobs:
-          exec:
+          build_image:
             timeout: 0
             tasks:
             - exec:
                 arguments:
                 - publishLocal
                 command: sbt
+                run_if: passed
+  # test_application:
+  #   group: My-Pipelines
+  #   label_template: ${COUNT}
+  #   lock_behavior: none
+  #   display_order: 1
+  #   materials:
+  #     upstream:
+  #       pipeline: build_and_publish_image
+  #       stage: build_and_publish_image
+  #       name: upstream
+  #     git-8b31324:
+  #       git: https://github.com/piyawattop/test-scala
+  #       username: piyawattop@hotmail.com
+  #       shallow_clone: false
+  #       auto_update: true
+  #       branch: main
+  #       encrypted_password: AES:J35YTqnKLfjG3oOjAod7tw==:VSMJlR4uUfz+RsZxRC0REjGY4MyuhGu0thXMZj4dbtY4a7k+RR/iBZ1tulGAM3kV
+  #   stages:
+  #   - test_app_image:
+  #       fetch_materials: true
+  #       keep_artifacts: false
+  #       clean_workspace: false
+  #       approval:
+  #         type: success
+  #         allow_only_on_success: false
+  #       jobs:
+  #         test_app_image:
+  #           timeout: 0
+  #           tasks:
+  #           - fetch:
+  #               arguments:
+  #               - publishLocal
+  #               command: sbt
+  #               run_if: passed
+  #           - exec:
+  #               arguments:
+  #               - -c
+  #               - docker run
+  deploy_to_test:
+    group: My-Pipelines
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: 2
+    materials:
+      upstream:
+        pipeline: build_and_publish_image
+        stage: build_and_publish_image
+        name: upstream
+      git-8b31324:
+        git: https://github.com/piyawattop/test-scala
+        username: piyawattop@hotmail.com
+        shallow_clone: false
+        auto_update: true
+        branch: main
+        encrypted_password: AES:J35YTqnKLfjG3oOjAod7tw==:VSMJlR4uUfz+RsZxRC0REjGY4MyuhGu0thXMZj4dbtY4a7k+RR/iBZ1tulGAM3kV
+    stages:
+    - test_app_image:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+          allow_only_on_success: false
+        jobs:
+          test_app_image:
+            timeout: 0
+            tasks:
+            - fetch:
+                options:
+                  EnvironmentVariablePrefix: ''
+                  SkipImagePulling: 'true'
+                artifact_id: scala-test
+                pipeline: build_and_publish_image
+                stage: build_and_publish_image
+                job: build_image
+                artifact_origin: external
+                run_if: passed
+            - exec:
+                arguments:
+                - dev
+                command: ./app-deployment.sh
                 run_if: passed
